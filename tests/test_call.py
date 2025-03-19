@@ -1,4 +1,4 @@
-from movie.api.call import gen_url, call_api, list2df, save_df
+from movie.api.call import gen_url, call_api, list2df, save_df, fill_na_with_column, create_unique_ranked_df
 import os
 import pandas as pd
 
@@ -76,5 +76,15 @@ def test_list2df_check_num():
     for c in num_cols:
         assert df[c].dtype in ['int64', 'float64'], f"{c} 가 숫자가 아님"
 
-
+def test_merge_df():
+    PATH = "~/data/movies/dailyboxoffice/dt=20240101"
+    df = pd.read_parquet(PATH)
+    assert len(df) == 50
+    
+    df1 = fill_na_with_column(df, 'multiMovieYn')
+    assert df1["multiMovieYn"].isna().sum() == 5
+    
+    uniquedf = create_unique_ranked_df(df=df1, drop_columns=['rnum', 'rank', 'rankInten', 'salesShare'])
+    
+    
 
