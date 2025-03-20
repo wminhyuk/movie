@@ -51,31 +51,23 @@ def fill_na_with_column(origin_df, c_name):
                 df.at[i, c_name] = df.at[notna_idx, c_name]
     return df
 
+def gen_unique(df: pd.DataFrame, drop_columns: list) -> pd.DataFrame:
+    df_drop = df.drop(columns=drop_columns)
+    unique_df = df_drop.drop_duplicates()
+    return unique_df
 
-def create_unique_ranked_df(df, drop_columns):
-    df_unique = df.drop(columns=drop_columns).drop_duplicates()    
-    return df_unique
 
-
-def re_ranking(df):
-    df = df.sort_values(by="audiCnt", ascending=False).reset_index(drop=True)
-    df['rnum'] = df['audiCnt'].rank(ascending=False).astype(int)
-    df['rank'] = df['rnum']
+def re_ranking(df: pd.DataFrame) -> pd.DataFrame:
+    df["rnum"] = df["audiCnt"].rank(method="dense", ascending=False).astype(int)
+    df["rank"] = df["audiCnt"].rank(method="min", ascending=False).astype(int)
     return df
 
 def fill_unique_ranking(df: pd.DataFrame, dt:str) -> pd.DataFrame:
     df1 = fill_na_with_column(df, 'multiMovieYn')
     df2 = fill_na_with_column(df1, 'repNationCd')
     drop_columns=['rnum', 'rank', 'rankInten', 'salesShare']
-    unique_df = create_unique_ranked_df(df=df2, drop_columns=drop_columns)
+    unique_df = gen_unique(df=df2, drop_columns=drop_columns)
     new_ranking_df = re_ranking(unique_df)
     new_ranking_df['dt'] = dt
     return new_ranking_df
-
-def save_merge_df(df, dt):
-    save_path = f"/home/seominhyuk/data/movies/merge/dailyboxoffice/dt={dt}"
-    os.makedirs(os.path.dirname(save_path), exist_ok=True)
-    df.to_parquet(save_path, index=False)
-    return save_path
-
 

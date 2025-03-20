@@ -1,4 +1,4 @@
-from movie.api.call import gen_url, call_api, list2df, save_df, fill_na_with_column, create_unique_ranked_df
+from movie.api.call import gen_url, call_api, list2df, save_df, fill_na_with_column, gen_unique, re_ranking, fill_unique_ranking
 import os
 import pandas as pd
 
@@ -76,6 +76,7 @@ def test_list2df_check_num():
     for c in num_cols:
         assert df[c].dtype in ['int64', 'float64'], f"{c} 가 숫자가 아님"
 
+
 def test_merge_df():
     PATH = "~/data/movies/dailyboxoffice/dt=20240101"
     df = pd.read_parquet(PATH)
@@ -84,7 +85,27 @@ def test_merge_df():
     df1 = fill_na_with_column(df, 'multiMovieYn')
     assert df1["multiMovieYn"].isna().sum() == 5
     
-    uniquedf = create_unique_ranked_df(df=df1, drop_columns=['rnum', 'rank', 'rankInten', 'salesShare'])
+    df2 = fill_na_with_column(df1, 'repNationCd')
+    assert df2["repNationCd"].isna().sum() == 5
+
+    drop_columns=['rnum', 'rank', 'rankInten', 'salesShare']
+    unique_df = gen_unique(df=df2, drop_columns=drop_columns) 
+    assert len(unique_df) == 25
+    
+    new_ranking_df = re_ranking(unique_df)
+    assert new_ranking_df.iloc[0]['movieNm'] == '노량: 죽음의 바다'
+    
+def test_merge_save():
+    dt = "20240101"
+    PATH = f"~/data/movies/dailyboxoffice/dt={dt}"
+    df = pd.read_parquet(PATH)
+    
+    rdf = fill_unique_ranking(df, dt)
+    assert len(rdf) == 25
+    assert rdf.iloc[0]['movieNm'] == '노량: 죽음의 바다'
+    
+    save_path = save_df(rdf, "~/temp/data/merge", partitions=['dt'])
+    assert save_path == f"~/temp/data/merge/dt={dt}"
     
     
 
