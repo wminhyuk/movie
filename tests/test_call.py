@@ -1,4 +1,7 @@
-from movie.api.call import gen_url, call_api, list2df, save_df, fill_na_with_column, gen_unique, re_ranking, fill_unique_ranking
+from movie.api.call import (
+    gen_url, call_api, list2df, save_df,
+    fill_na_with_column, gen_unique, re_ranking, fill_unique_ranking
+)
 import os
 import pandas as pd
 
@@ -75,7 +78,7 @@ def test_list2df_check_num():
     df = list2df(data, ymd)
     for c in num_cols:
         assert df[c].dtype in ['int64', 'float64'], f"{c} 가 숫자가 아님"
-
+        
 
 def test_merge_df():
     PATH = "~/data/movies/dailyboxoffice/dt=20240101"
@@ -108,4 +111,3 @@ def test_merge_save():
     assert save_path == f"~/temp/data/merge/dt={dt}"
     
     
-

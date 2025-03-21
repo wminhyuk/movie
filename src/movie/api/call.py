@@ -56,7 +56,6 @@ def gen_unique(df: pd.DataFrame, drop_columns: list) -> pd.DataFrame:
     unique_df = df_drop.drop_duplicates()
     return unique_df
 
-
 def re_ranking(df: pd.DataFrame) -> pd.DataFrame:
     df["rnum"] = df["audiCnt"].rank(method="dense", ascending=False).astype(int)
     df["rank"] = df["audiCnt"].rank(method="min", ascending=False).astype(int)
@@ -70,4 +69,3 @@ def fill_unique_ranking(df: pd.DataFrame, dt:str) -> pd.DataFrame:
     new_ranking_df = re_ranking(unique_df)
     new_ranking_df['dt'] = dt
     return new_ranking_df
-
